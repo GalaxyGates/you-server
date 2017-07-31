@@ -12,7 +12,8 @@
     "laravel/framework": "5.4.*",
     "laravel/tinker": "~1.0",
     "garveen/laravoole": "^0.5.0",
-    "webpatser/laravel-uuid": "2.*"
+    "webpatser/laravel-uuid": "2.*",
+    "predis/predis": "~1.0"
   },
   "require-dev": {
     "fzaninotto/faker": "~1.4",
@@ -51,5 +52,11 @@
   "config": {
     "preferred-install": "dist",
     "sort-packages": true
+  },
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://packagist.phpcomposer.com"
+    }
   }
 }
