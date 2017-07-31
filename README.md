@@ -1,4 +1,5 @@
 # You
+# Where your Dream Start
 ## A Easy Chat
 
 ### 整个项目是一个完整的解决方案，项目的主构架是后端程序
@@ -23,4 +24,3 @@
 
 ### 登录链路使用Http Request (JSON)
 ### 聊天链路使用Websocket (JSON)
-"# you-server" 
