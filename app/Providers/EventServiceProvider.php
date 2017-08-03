@@ -33,7 +33,7 @@ class EventServiceProvider extends ServiceProvider
         \Event::listen('laravoole.requesting', function ($request) {
         });
         \Event::listen('laravoole.requested', function ($request, $response) {
-            $ptr = $request->input('ptr');
+            $ptr = $request->input('ptorocol');
             $fd = $request->getLaravooleInfo()->fd;
 
             if (isset($ptr)) {
@@ -41,12 +41,12 @@ class EventServiceProvider extends ServiceProvider
                     case 0: {
                         $rtv = 1;
                         try {
-                            $Token = $request->input('Token');
+                            $Token = $request->input('token');
                             if ($Token == '') {
                                 //这里是为了防止作弊逃过验证
                                 throw new Exception(null, 1);
                             }
-                            $username = $request->input('Username');
+                            $username = $request->input('username');
                             $our_token = Cache::tags("user_token")->get($username, '');
                             if ($our_token == $Token) {
                                 //通过验证
