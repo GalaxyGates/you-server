@@ -11,8 +11,6 @@ class message extends Notification
 {
     use Queueable;
 
-    //发送时间
-    public $_send_time;
     //发送文本
     public $_message_text;
     //发送者
@@ -23,9 +21,8 @@ class message extends Notification
      *
      * @return void
      */
-    public function __construct($time, $text, $sender)
+    public function __construct($text, $sender)
     {
-        $this->_send_time = $time;
         $this->_message_text = $text;
         $this->_sender = $sender;
     }
@@ -50,7 +47,6 @@ class message extends Notification
     public function toArray($notifiable)
     {
         return [
-            'text' => $this->_message_text,
             'sender' => $this->_sender,
             'message' => $this->_message_text,
         ];
