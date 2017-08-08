@@ -33,3 +33,5 @@ Route::get('/csrf_token', function () {
 });
 
 Route::post('/mobile/auth/login', 'Mobile\MobileAuthController@login');
+
+Route::resource('avatar', 'AvatarController');

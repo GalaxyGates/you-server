@@ -15,6 +15,7 @@ use hiahia\User;
 
 use hiahia\Notifications\message as Message;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Collection;
 
 const CHECK_IN = 0;
 const CHECK_IN_R = 1;
@@ -24,6 +25,8 @@ const PUSH_MSG = 4;
 const PUSH_MSG_R = 5;
 const PULL_MSG = 6;
 const PULL_MSG_R = 7;
+const RECIVE_MSG = 8;
+const RECIVE_MSG_R = 9;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -65,6 +68,10 @@ class EventServiceProvider extends ServiceProvider
                     }
                     case PULL_MSG: {
                         $this->PullChatMessage($request);
+                        break;
+                    }
+                    case RECIVE_MSG: {
+                        $this->ReceiveMessage($request);
                         break;
                     }
                     default: {
@@ -150,8 +157,8 @@ class EventServiceProvider extends ServiceProvider
             $users = User::all();
 
             foreach ($users as $user) {
-//                if($user->email == $sender)
-//                    continue;
+                if ($user->email == $sender)
+                    continue;
                 $user->notify(new Message($text, $sender));
             }
             return $this->SendChatMessageReturn($fd, 2);
@@ -181,27 +188,67 @@ class EventServiceProvider extends ServiceProvider
         $fd = $request->getLaravooleInfo()->fd;
         $username = $this->CheckAuth($request);
         if ($username == '')
-            return $this->SendPullMessageReturn($fd, 0, null);
+            return $this->SendPullMessageReturn($fd, 0, $fd);
         else {
             $user = User::where('email', '=', $username)->first();
             $notifications = $user->unreadNotifications;
-            $notifications->markAsRead();
-            $data = json_decode($notifications->reverse()->pluck('data'), true);
+
+            $rows = $reverse = $notifications->reverse();
             $message = Array();
-            foreach ($data as $key => $value) {
-                $message[$key] = ['remote' => $value['sender'], 'content' => $value['message']];
+            foreach ($rows as $key => $value) {
+                $message[$key] = [
+                    'id' => $value->id,
+                    'remote' => $value->data['sender'],
+                    'content' => $value->data['message']
+                ];
             }
+
             $this->SendPullMessageReturn($fd, 1, $message);
         }
     }
 
     function CheckAuth($request)
     {
-        return Cache::tags("fd_user")->get($request->fd, '');
+        return Cache::tags("fd_user")->get($request->getLaravooleInfo()->fd, '');
     }
 
     function SendPullMessageReturn($fd, $status, $message = null)
     {
         $this->SendMessage($fd, ['protocol' => PULL_MSG_R, 'status' => $status, 'message' => $message]);
+    }
+
+    function ReceiveMessage($request)
+    {
+        //这个函数将在客户端收到消息时被调用
+        $fd = $request->getLaravooleInfo()->fd;
+        $username = $this->CheckAuth($request);
+
+        if ($username == '') {
+            return $this->SendReceiveMessageReturn($fd, 1);
+        }
+        Log::info("$username on $fd has recived his message");
+        $message_list = collect($request->input('message'));
+
+        $user = User::where('email', '=', $username)->first();
+        if ($user == null) {
+            return $this->SendReceiveMessageReturn($fd, 2);
+        }
+
+        $notifications = $user->unreadNotifications;
+
+        $readNotifications = $notifications->filter(function ($item) use ($message_list) {
+            return $message_list->contains($item->id);
+        });
+
+        $readNotifications->markAsRead();
+
+        return $this->SendReceiveMessageReturn($fd, 3);
+
+
+    }
+
+    function SendReceiveMessageReturn($fd, $status)
+    {
+        $this->SendMessage($fd, ['protocol' => RECIVE_MSG_R, 'status' => $status]);
     }
 }

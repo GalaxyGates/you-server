@@ -52,13 +52,18 @@ class LogNotification
             return;
         } else {
             //推送消息
-            $this->PushChatMessage($fd, $event->notification->_sender, $event->notification->_message_text);
+            $this->PushChatMessage($fd, $event->notification->id, $event->notification->_sender, $event->notification->_message_text);
         }
     }
 
-    function PushChatMessage($fd, $remote, $message)
+    function PushChatMessage($fd, $id, $remote, $message)
     {
-        $this->SendMessage($fd, Array(['protocol' => PUSH_MSG, 'remote' => $remote, 'content' => $message]));
+        $this->SendMessage($fd, ['protocol' => PUSH_MSG,
+                'message' => Array(
+                    ['id' => $id, 'remote' => $remote, 'content' => $message],
+                )
+            ]
+        );
     }
 
     function SendMessage($fd, $a)
