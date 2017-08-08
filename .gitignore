@@ -7,8 +7,3 @@
 Homestead.json
 Homestead.yaml
 .env
-/storage/views/*
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/framework/views/*
-/storage/app/*
