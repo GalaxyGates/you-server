@@ -39,9 +39,32 @@ class MobileAuthController extends Controller
         }
     }
 
+    protected function loginWithToken(Request $request)
+    {
+        if (Auth::check()) {
+            return response()->json(['status' => 0, 'error_code' => 0]);
+        }
+        $username = $request->input('username');
+        $token = $request->input('token');
+        Log::info("login attemping:username:$username token:$token");
+        $ourToken = Cache::tags('mobile_token')->get($username, '');
+        if ($ourToken == '') {
+            return response()->json(['status' => 0, 'error_code' => 1]);
+        } else if ($ourToken != $token) {
+            return response()->json(['status' => 0, 'error_code' => 2]);
+        } else {
+            Auth::login(User::where('email', '=', $username)->first(), true);
+            return response()->json(['status' => 1, 'error_code' => 0]);
+        }
+    }
     protected function getStatus(Request $request)
     {
-
+        $username = $request->input('username');
+        $token = $request->input('token');
+        $ourToken = Cache::tags('mobile_token')->get($username, '');
+        $token_status = ($ourToken == '') ? false : $ourToken == $token;
+        $http_status = Auth::check();
+        return response()->json(['http_status' => $http_status, 'token_status' => $token_status]);
     }
 
     protected function connect(Request $request)

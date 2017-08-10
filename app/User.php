@@ -31,4 +31,14 @@ class User extends Authenticatable
     {
         return $this->hasMany('hiahia\Avatar');
     }
+
+    public function contacts()
+    {
+        return $this->belongsToMany('hiahia\User', 'contacts', 'host_id', 'remote_id')->withTimestamps();
+    }
+
+    public function reContacts()
+    {
+        return $this->belongsToMany('hiahia\User', 'contacts', 'remote_id', 'host_id')->withTimestamps();
+    }
 }
