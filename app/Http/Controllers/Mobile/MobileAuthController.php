@@ -20,6 +20,11 @@ class MobileAuthController extends Controller
 {
     protected $TOKEN_EXPIRE_TIME = 1000 * 3600 * 30;
 
+    public function __construct()
+    {
+        $this->middleware('auth.mobile')->except('login')->except('loginWithToken')->except('getStatus');
+    }
+
     protected function login(Request $request)
     {
         $username = $request->input('username');
@@ -42,7 +47,7 @@ class MobileAuthController extends Controller
     protected function loginWithToken(Request $request)
     {
         if (Auth::check()) {
-            return response()->json(['status' => 0, 'error_code' => 0]);
+            return response()->json(['status' => 1, 'error_code' => 0]);
         }
         $username = $request->input('username');
         $token = $request->input('token');

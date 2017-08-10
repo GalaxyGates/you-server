@@ -32,10 +32,19 @@ Route::get('/csrf_token', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 });
 
-Route::post('/mobile/auth/login', 'Mobile\MobileAuthController@login');
+Route::prefix('mobile')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::post('login', 'Mobile\MobileAuthController@login');
+        Route::post('token_login', 'Mobile\MobileAuthController@loginWithToken');
+    });
+
+});
 
 Route::prefix('contact')->group(function () {
     Route::get('/', 'ContactController@getList');
+    Route::post('del', 'ContactController@delete');
+    Route::post('add', 'ContactController@add');
+    Route::get('/test', 'ContactController@test');
 });
 
 Route::resource('avatar', 'AvatarController');
