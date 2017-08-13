@@ -12,10 +12,13 @@ use Illuminate\Support\Facades\Cache;
 use Swoole\Exception;
 
 use hiahia\User;
+use hiahia\Session;
 
 use hiahia\Notifications\message as Message;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Collection;
+
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 const CHECK_IN = 0;
 const CHECK_IN_R = 1;
@@ -151,29 +154,20 @@ class EventServiceProvider extends ServiceProvider
 
         $sender = $username;
         $text = $message;
-        $time = time();
 
-        if ($remote == '') {
-            $users = User::all();
-
-            foreach ($users as $user) {
-                if ($user->email == $sender)
-                    continue;
-                $user->notify(new Message($text, $sender));
+        try {
+            $session = Session::findOrFail($remote);
+            $users = $session->users();
+            if ($users->contains($peer_user)) {
+                $users->notify(new Message($text, $sender));
+                $this->SendChatMessageReturn($fd, 0);
+            } else {
+                throw new \Exception('用户并不在会话中');
             }
-            return $this->SendChatMessageReturn($fd, 2);
-        } else {
-            //获取目标用户
-            $remote_user = User::where("email", '=', $remote)->first();
-
-            //没找到
-            if ($remote_user == null) {
-                return $this->SendChatMessageReturn($fd, 3);
-            }
-
-            $remote->notify(new Message($text, $sender));
-
-            return $this->SendChatMessageReturn($fd, 4);
+        } catch (ModelNotFoundException $e) {
+            $this->SendChatMessageReturn($fd, 1);
+        } catch (\Exception $e) {
+            $this->SendChatMessageReturn($fd, 2);
         }
 
     }

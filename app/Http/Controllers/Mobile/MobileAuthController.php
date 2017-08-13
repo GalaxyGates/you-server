@@ -22,7 +22,6 @@ class MobileAuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth.mobile')->except('login')->except('loginWithToken')->except('getStatus');
     }
 
     protected function login(Request $request)

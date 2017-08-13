@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+
+use hiahia\Contact;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -48,12 +51,28 @@ class User extends Authenticatable
         return $this->contacts()->where('email', '=', email)->first();
     }
 
+    public function getHomeProfile()
+    {
+        return ['name' => $this->name, 'mobile' => $this->mobile, 'gender' => $this->gender, 'motto' => $this->motto, 'id' => $this->id];
+    }
+
 
     //通过邮箱检索是否存在
 
     public function contacts()
     {
         return $this->belongsToMany('hiahia\User', 'contacts', 'host_id', 'remote_id')->withTimestamps();
+    }
+
+    public function addContact(User $user)
+    {
+
+        return Contact::add($this, $user);
+    }
+
+    public function delContact(User $user)
+    {
+        return Contact::del($this, $user);
     }
 
 }
