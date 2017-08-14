@@ -155,6 +155,8 @@ class EventServiceProvider extends ServiceProvider
         $sender = $username;
         $text = $message;
 
+        Log::info("user:$username is attempting to send message:$text");
+
         try {
             $session = Session::findOrFail($remote);
             $users = $session->users();
