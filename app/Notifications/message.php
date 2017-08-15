@@ -15,16 +15,18 @@ class message extends Notification
     public $_message_text;
     //发送者
     public $_sender;
-
+    //通过哪个会话发送
+    public $_session;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($text, $sender)
+    public function __construct($text, $sender, $session)
     {
         $this->_message_text = $text;
         $this->_sender = $sender;
+        $this->_session = $session;
     }
 
     /**
@@ -49,6 +51,7 @@ class message extends Notification
         return [
             'sender' => $this->_sender,
             'message' => $this->_message_text,
+            'session' => $this->_session
         ];
     }
 }

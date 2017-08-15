@@ -38,11 +38,8 @@ class ContactController extends Controller
 
     public function test(Request $request)
     {
-        Contact::where('id', '>=', '0')->delete();
-        Contact::add($request->user(), User::find(4));
-        Contact::add($request->user(), User::find(5));
-        Contact::add($request->user(), User::find(6));
-        return Auth::user()->contacts()->get();
+        Session::addByID([0, 1, 2, 3, 4, 5, 6]);
+        return Session::all();
     }
 
     public function add(Request $request)

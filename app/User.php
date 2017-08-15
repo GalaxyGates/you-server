@@ -61,7 +61,7 @@ class User extends Authenticatable
 
     public function contacts()
     {
-        return $this->belongsToMany('hiahia\User', 'contacts', 'host_id', 'remote_id')->withTimestamps();
+        return $this->belongsToMany('hiahia\User', 'contacts', 'host_id', 'remote_id')->withPivot('session_id');
     }
 
     public function addContact(User $user)

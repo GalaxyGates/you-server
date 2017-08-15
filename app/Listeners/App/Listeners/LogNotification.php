@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 use Illuminate\Support\Facades\Cache;
 use Swoole\Exception;
+use Log;
 
 use hiahia\User;
 use Illuminate\Support\Facades\Notification;
@@ -47,20 +48,21 @@ class LogNotification
         $remote = $event->notifiable;
         $username = $remote->email;
         $fd = Cache::tags("user_fd")->get($username, -1);
+        Log::info("sending to :$username on $fd");
         if ($fd == -1) {
-            //消息已经读取
+            //用户不在线啊
             return;
         } else {
             //推送消息
-            $this->PushChatMessage($fd, $event->notification->id, $event->notification->_sender, $event->notification->_message_text);
+            $this->PushChatMessage($fd, $event->notification->id, $event->notification->_sender, $event->notification->_message_text, $event->notification->_session);
         }
     }
 
-    function PushChatMessage($fd, $id, $remote, $message)
+    function PushChatMessage($fd, $id, $remote, $message, $session)
     {
         $this->SendMessage($fd, ['protocol' => PUSH_MSG,
                 'message' => Array(
-                    ['id' => $id, 'remote' => $remote, 'content' => $message],
+                    ['id' => $id, 'remote' => $remote, 'content' => $message, 'session' => $session],
                 )
             ]
         );
@@ -68,6 +70,10 @@ class LogNotification
 
     function SendMessage($fd, $a)
     {
-        app('laravoole.server')->push($fd, json_encode($a));
+        try {
+            app('laravoole.server')->push($fd, json_encode($a));
+        } catch (\Exception $e) {
+            Log::info('send message exception:' . $e);
+        }
     }
 }

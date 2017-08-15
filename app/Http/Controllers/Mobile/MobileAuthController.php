@@ -45,6 +45,8 @@ class MobileAuthController extends Controller
 
     protected function loginWithToken(Request $request)
     {
+
+        Log::info("login attemping");
         if (Auth::check()) {
             return response()->json(['status' => 1, 'error_code' => 0]);
         }
@@ -70,7 +72,6 @@ class MobileAuthController extends Controller
         $http_status = Auth::check();
         return response()->json(['http_status' => $http_status, 'token_status' => $token_status]);
     }
-
     protected function connect(Request $request)
     {
 

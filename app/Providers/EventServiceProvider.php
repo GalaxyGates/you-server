@@ -96,12 +96,15 @@ class EventServiceProvider extends ServiceProvider
         Log::info('Login WebsocketChat');
         $rtv = 1;
         try {
-            $Token = $request->input('token');
+            $Token = $request->input('token', '');
             if ($Token == '') {
                 //这里是为了防止作弊逃过验证
                 throw new Exception(null, 1);
             }
-            $username = $request->input('username');
+            $username = $request->input('username', '');
+            if ($username == '') {
+                throw new Exception(null, 2);
+            }
             $our_token = Cache::tags("mobile_token")->get($username, '');
             if ($our_token == $Token) {
                 //通过验证
@@ -110,7 +113,7 @@ class EventServiceProvider extends ServiceProvider
                 Cache::tags("fd_user")->forever($fd, $username);
                 Log::info("user $username has come with fd:$fd");
             } else {
-                throw new Exception(null, 1);
+                throw new Exception(null, 3);
             }
         } catch (Exception $e) {
             //这里出现异常怕都是验证通不过
@@ -131,7 +134,12 @@ class EventServiceProvider extends ServiceProvider
 
     function SendMessage($fd, $a)
     {
-        app('laravoole.server')->push($fd, json_encode($a));
+
+        try {
+            app('laravoole.server')->push($fd, json_encode($a));
+        } catch (Exception $e) {
+            Log::info('send message exception:' . $e);
+        }
     }
 
     function closeConnection($fd)
@@ -155,21 +163,28 @@ class EventServiceProvider extends ServiceProvider
         $sender = $username;
         $text = $message;
 
-        Log::info("user:$username is attempting to send message:$text");
-
+        Log::info("user:$username is attempting to send message:$text to $remote");
+        $status = 0;
         try {
             $session = Session::findOrFail($remote);
-            $users = $session->users();
+            $users = $session->findUserByID();
             if ($users->contains($peer_user)) {
-                $users->notify(new Message($text, $sender));
-                $this->SendChatMessageReturn($fd, 0);
+                foreach ($users as $key => $user) {
+                    if ($user->id != $peer_user->id)
+                        $user->notify(new Message($text, $sender, $remote));
+                }
+                $status = 1;
             } else {
                 throw new \Exception('用户并不在会话中');
             }
         } catch (ModelNotFoundException $e) {
-            $this->SendChatMessageReturn($fd, 1);
+            Log::info($e->getMessage());
+            $status = 2;
         } catch (\Exception $e) {
-            $this->SendChatMessageReturn($fd, 2);
+            Log::info($e->getMessage());
+            $status = 3;
+        } finally {
+            $this->SendChatMessageReturn($fd, $status);
         }
 
     }
@@ -195,7 +210,8 @@ class EventServiceProvider extends ServiceProvider
                 $message[$key] = [
                     'id' => $value->id,
                     'remote' => $value->data['sender'],
-                    'content' => $value->data['message']
+                    'content' => $value->data['message'],
+                    'session' => $value->data['session']
                 ];
             }
 

@@ -20,9 +20,21 @@ class Session extends Model
         return $session;
     }
 
-    public function users()
+    static public function addByID($ids)
     {
-        $json = $this->users();
+        $json = json_encode($ids);
+        $session = new Session();
+        $session->users = $json;
+        $session->save();
+        return $session;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function findUserByID()
+    {
+        $json = $this->users;
         $ids = json_decode($json, true);
         return User::find($ids);
     }
