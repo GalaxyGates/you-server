@@ -56,6 +56,23 @@ class User extends Authenticatable
         return ['name' => $this->name, 'mobile' => $this->mobile, 'gender' => $this->gender, 'motto' => $this->motto, 'id' => $this->id];
     }
 
+    public function updateProfile($name, $email, $motto, $mobile)
+    {
+        if ($name != '') {
+            $this->name = $name;
+        }
+        if ($email != '') {
+            $this->email = $email;
+        }
+        if ($motto != '') {
+            $this->motto = $motto;
+        }
+        if ($mobile != '') {
+            $this->mobile = $mobile;
+        }
+        $this->save();
+    }
+
 
     //通过邮箱检索是否存在
 

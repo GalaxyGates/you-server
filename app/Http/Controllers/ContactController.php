@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Swoole\Exception;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 /**
  * Class ContactController
  * @package hiahia\Http\Controllers
@@ -77,5 +79,33 @@ class ContactController extends Controller
         } catch (Exception $e) {
             return response()->json(['status' => 2, 'error_code' => $e->getCode(), 'message' => $e->getMessage()]);
         }
+    }
+
+    public function createContactQRToken(Request $request)
+    {
+        $user = $request->user();
+        $uuid = (string)Uuid::generate(5, $user->name + time(), Uuid::NS_DNS);
+        Cache::tags('contact_qr_token')->put($uuid, $user->id);
+        return $uuid;
+    }
+
+    public function addByQRToken(Request $request)
+    {
+        $user = $request->user();
+        $token = $request->input('token');
+        if ($token == null)
+            return response()->json(['status' => 0, 'error_code' => 1]);
+        $remote_id = Cache::tags('contact_qr_token')->get($token, -1);
+        if ($remote_id == -1)
+            return response()->json(['status' => 0, 'error_code' => 2]);
+        try {
+            $remote = User::findOrFail($remote_id);
+            Contact::add($user, $remote);
+            return response()->json(['status' => 1]);
+        } catch (ModelNotFoundException $e) {
+            Log::info('ContactController::addByQRToken:' . $e->getMessage());
+            return response()->json(['status' => 0, 'error_code' => 3]);
+        }
+
     }
 }

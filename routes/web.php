@@ -47,6 +47,8 @@ Route::prefix('contact')->group(function () {
     Route::post('del', 'ContactController@delete')->middleware('auth.mobile');
     Route::post('add', 'ContactController@add')->middleware('auth.mobile');
     Route::get('/test', 'ContactController@test');
+    Route::post('/add_by_qr', 'ContactController@addByQRToken')->middleware('auth.mobile');
+    Route::get('/create_add_qr', 'ContactController@createContactQRToken')->middleware('auth.mobile');
 });
 
 Route::prefix('profile')->group(function () {
