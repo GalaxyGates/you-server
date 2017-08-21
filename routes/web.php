@@ -30,29 +30,3 @@ Route::prefix('chat')->group(function () {
 });
 
 
-Route::get('/csrf_token', function () {
-    return response()->json(['csrf_token' => csrf_token()]);
-});
-
-Route::prefix('mobile')->group(function () {
-    Route::prefix('auth')->group(function () {
-        Route::post('login', 'Mobile\MobileAuthController@login');
-        Route::post('token_login', 'Mobile\MobileAuthController@loginWithToken');
-    });
-
-});
-
-Route::prefix('contact')->group(function () {
-    Route::get('/', 'ContactController@getList')->middleware('auth.mobile');
-    Route::post('del', 'ContactController@delete')->middleware('auth.mobile');
-    Route::post('add', 'ContactController@add')->middleware('auth.mobile');
-    Route::get('/test', 'ContactController@test');
-    Route::post('/add_by_qr', 'ContactController@addByQRToken')->middleware('auth.mobile');
-    Route::get('/create_add_qr', 'ContactController@createContactQRToken')->middleware('auth.mobile');
-});
-
-Route::prefix('profile')->group(function () {
-    Route::get('/', 'ProfileController@getHomeProfile')->middleware('auth.mobile');
-});
-
-Route::resource('avatar', 'AvatarController');

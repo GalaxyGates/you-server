@@ -1,7 +1,8 @@
 <?php
 
-namespace hiahia\Http\Controllers;
+namespace hiahia\Http\Controllers\API;
 
+use hiahia\Http\Controllers\Controller;
 use hiahia\User;
 use hiahia\Contact;
 use hiahia\Session;

@@ -6,7 +6,7 @@
  * Time: 12:11
  */
 
-namespace hiahia\Http\Controllers\Mobile;
+namespace hiahia\Http\Controllers\API;
 
 use hiahia\User;
 use Illuminate\Http\Request;
@@ -15,8 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Log;
 use Webpatser\Uuid\Uuid;
-
-class MobileAuthController extends Controller
+class AuthController extends Controller
 {
     protected $TOKEN_EXPIRE_TIME = 1000 * 3600 * 30;
 

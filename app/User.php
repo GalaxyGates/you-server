@@ -56,19 +56,19 @@ class User extends Authenticatable
         return ['name' => $this->name, 'mobile' => $this->mobile, 'gender' => $this->gender, 'motto' => $this->motto, 'id' => $this->id];
     }
 
-    public function updateProfile($name, $email, $motto, $mobile)
+    public function updateProfile($name, $motto, $mobile,$gender)
     {
         if ($name != '') {
             $this->name = $name;
-        }
-        if ($email != '') {
-            $this->email = $email;
         }
         if ($motto != '') {
             $this->motto = $motto;
         }
         if ($mobile != '') {
             $this->mobile = $mobile;
+        }
+        if($gender!=''){
+            $this->gender = $gender;
         }
         $this->save();
     }

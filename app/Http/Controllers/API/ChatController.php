@@ -1,9 +1,10 @@
 <?php
 
-namespace hiahia\Http\Controllers;
+namespace hiahia\Http\Controllers\API;
+
 
 use Illuminate\Http\Request;
-
+use hiahia\Http\Controllers\Controller;
 use hiahia\User as User;
 use hiahia\Notifications\message as Message;
 

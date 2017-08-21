@@ -1,7 +1,9 @@
 <?php
 
-namespace hiahia\Http\Controllers;
+namespace hiahia\Http\Controllers\API;
 
+
+use hiahia\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class AvatarController extends Controller
