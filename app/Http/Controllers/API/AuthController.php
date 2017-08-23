@@ -45,7 +45,7 @@ class AuthController extends Controller
     protected function loginWithToken(Request $request)
     {
 
-        Log::info("login attemping");
+        Log::info("login attemping with token");
         if (Auth::check()) {
             return response()->json(['status' => 1, 'error_code' => 0]);
         }

@@ -50,7 +50,6 @@ class Contact extends Model
     {
         return $this->belongsTo('hiahia\User', 'remote_id');
     }
-
     public function session()
     {
         return $this->hasOne('hiahia\Session');

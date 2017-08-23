@@ -14,6 +14,7 @@ use Swoole\Exception;
 use Webpatser\Uuid\Uuid;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Carbon\Carbon;
 
 /**
  * Class ContactController
@@ -29,6 +30,10 @@ class ContactController extends Controller
     {
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function getList(Request $request)
     {
         try {
@@ -43,8 +48,7 @@ class ContactController extends Controller
 
     public function test(Request $request)
     {
-        Session::addByID([0, 1, 2, 3, 4, 5, 6]);
-        return Session::all();
+        $request->user()->removeContacts();
     }
 
     public function add(Request $request)
@@ -88,7 +92,7 @@ class ContactController extends Controller
     {
         $user = $request->user();
         $uuid = (string)Uuid::generate(5, $user->name + time()+'.qr_salt', Uuid::NS_DNS);
-        Cache::tags('contact_qr_token')->put($uuid, $user->id,5);/**/
+        Cache::tags('contact_qr_token')->put($uuid, $user->id,Carbon::now()->addMinutes(10));/**/
         return response()->json(['status'=>1,'qr_token'=>$uuid]);
     }
 
@@ -108,11 +112,11 @@ class ContactController extends Controller
                 //给自己通话？
                 return response()->json(['status'=>0,'error_code'=>3]);
             $remote = User::findOrFail($remote_id);
-            Contact::add($user, $remote);
             if($user->contacts()->get()->contains($remote))
                 //已经在好友列表里
                 return response()->json(['status'=>0,'error_code'=>4]);
             //返回成功
+            Contact::add($user, $remote);
             return response()->json(['status' => 1]);
         } catch (ModelNotFoundException $e) {
             Log::info('ContactController::addByQRToken:' . $e->getMessage());

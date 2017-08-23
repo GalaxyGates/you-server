@@ -52,11 +52,19 @@ class EventServiceProvider extends ServiceProvider
         parent::boot();
         \Event::listen('laravoole.requesting', function ($request) {
         });
+        \Event::listen('laravoole.swoole.websocket.closing',function($request,$fd){
+            $username=Cache::tags("fd_user")->get($fd,'');
+            Log::info("disconnected from $username on $fd");
+            if($username!='')
+            {
+                Cache::tags('fd_user')->forget($fd);
+                Cache::tags('user_fd')->forget($username);
+            }
+        });
         \Event::listen('laravoole.requested', function ($request, $response) {
             $ptr = $request->input('protocol');
             $fd = $request->getLaravooleInfo()->fd;
             $response->setContent("");
-            Log::info("websocketrequestcoming");
             if (isset($ptr)) {
                 switch ($ptr) {
                     case CHECK_IN: {
@@ -137,8 +145,13 @@ class EventServiceProvider extends ServiceProvider
 
         try {
             app('laravoole.server')->push($fd, json_encode($a));
-        } catch (Exception $e) {
-            Log::info('send message exception:' . $e);
+        }
+        catch (\ErrorException $e)
+        {
+            Log::Error('send message exception:' . $e->getMessage());
+        }
+        catch (Exception $e) {
+            Log::info('send message exception:' . $e->getMessage());
         }
     }
 

@@ -91,5 +91,18 @@ class User extends Authenticatable
     {
         return Contact::del($this, $user);
     }
+    public function contactList()
+    {
+        return $this->hasMany('hiahia\Contact','host_id');
+    }
+    public function reContactList()
+    {
+        return $this->hasMany('hiahia\Contact','remote_id');
+    }
+    public function removeContacts()
+    {
+        $this->contactList()->delete();
+        $this->reContactList()->delete();
+    }
 
 }

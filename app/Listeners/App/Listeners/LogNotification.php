@@ -50,6 +50,7 @@ class LogNotification
         $fd = Cache::tags("user_fd")->get($username, -1);
         Log::info("sending to :$username on $fd");
         if ($fd == -1) {
+            Log::info('user is not online,store message');
             //用户不在线啊
             return;
         } else {
@@ -73,7 +74,10 @@ class LogNotification
         try {
             app('laravoole.server')->push($fd, json_encode($a));
         } catch (\Exception $e) {
-            Log::info('send message exception:' . $e);
+            Log::info('send message exception:' . $e->getMessage());
+        }
+        catch (\ErrorException $e) {
+            Log::info('send message exception:' . $e->getMessage());
         }
     }
 }
