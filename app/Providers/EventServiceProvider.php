@@ -110,6 +110,7 @@ class EventServiceProvider extends ServiceProvider
                 throw new Exception(null, 1);
             }
             $username = $request->input('username', '');
+            Log::info("Websocket trying to login $username on $fd");
             if ($username == '') {
                 throw new Exception(null, 2);
             }
