@@ -26,4 +26,4 @@
 ### 聊天链路使用Websocket (JSON)
 
 
-### 前端地址 https://github.com/sjyMystery/you-server
+### 前端地址 https://github.com/sjyMystery/you-mobile
